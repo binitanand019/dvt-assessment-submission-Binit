@@ -1,0 +1,7 @@
+.idea/
+**/.idea/
+.build/
+mobile-login-android/app/build/
+mobile-login-android/build/
+*.apk
+*.aab
