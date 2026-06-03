@@ -136,23 +136,23 @@ public class RewardQuoteController
             );
         }
 
-        if (request.bookingAmount <= 0) {
+        if (request.getBookingAmount() <= 0) {
 
             throw new IllegalArgumentException(
                     "Booking amount must be greater than zero"
             );
         }
 
-        if (request.currencyCode == null ||
-                request.currencyCode.isBlank()) {
+        if (request.getCurrencyCode() == null ||
+                request.getCurrencyCode().isBlank()) {
 
             throw new IllegalArgumentException(
                     "Currency code is mandatory"
             );
         }
 
-        if (request.membershipTier == null ||
-                request.membershipTier.isBlank()) {
+        if (request.getMembershipTier() == null ||
+                request.getMembershipTier().isBlank()) {
 
             throw new IllegalArgumentException(
                     "Membership tier is mandatory"

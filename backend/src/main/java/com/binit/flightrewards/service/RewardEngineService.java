@@ -40,15 +40,15 @@ public class RewardEngineService {
 
         double fxRate =
                 currencyConversionClient
-                        .fetchFxRate(request.currencyCode);
+                        .fetchFxRate(request.getCurrencyCode());
 
         int baseRewards =
-                (int) (request.bookingAmount * fxRate);
+                (int) (request.getBookingAmount() * fxRate);
 
         int tierRewards =
                 calculateTierRewards(
                         baseRewards,
-                        request.membershipTier
+                        request.getMembershipTier()
                 );
 
         int campaignRewards =

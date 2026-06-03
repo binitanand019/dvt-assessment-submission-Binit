@@ -5,6 +5,11 @@ import com.binit.flightrewards.dto.LoginResponse;
 
 import java.util.UUID;
 
+/**
+ * Service responsible for
+ * authentication operations.
+ */
+
 public class AuthService {
 
     private static final String DEMO_EMAIL =

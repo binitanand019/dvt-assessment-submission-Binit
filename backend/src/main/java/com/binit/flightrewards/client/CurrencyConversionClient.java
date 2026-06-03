@@ -5,6 +5,9 @@ import io.vertx.ext.web.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Client used for currency conversion.
+ */
 public class CurrencyConversionClient {
 
     private static final Logger LOGGER =
