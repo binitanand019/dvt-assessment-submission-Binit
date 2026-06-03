@@ -8,12 +8,28 @@ import com.binit.flightrewards.model.RewardQuoteResult;
 import java.time.Instant;
 import java.util.ArrayList;
 
+/**
+ * Generates reward quotes based on booking amount,
+ * currency and membership tier.
+ */
 public class RewardEngineService {
 
-    private final CurrencyConversionClient
-            currencyConversionClient =
-            new CurrencyConversionClient();
+    private final CurrencyConversionClient currencyConversionClient;
 
+    public RewardEngineService(
+            CurrencyConversionClient currencyConversionClient
+    ) {
+        this.currencyConversionClient =
+                currencyConversionClient;
+    }
+
+    /**
+     * Generates reward points quote
+     * based on booking details.
+     *
+     * @param request booking request
+     * @return reward calculation result
+     */
     public RewardQuoteResult generateRewardQuote(
             RewardQuoteRequest request
     ) {
@@ -29,12 +45,14 @@ public class RewardEngineService {
         int baseRewards =
                 (int) (request.bookingAmount * fxRate);
 
-        int tierRewards = calculateTierRewards(
-                baseRewards,
-                request.membershipTier
-        );
+        int tierRewards =
+                calculateTierRewards(
+                        baseRewards,
+                        request.membershipTier
+                );
 
-        int campaignRewards = calculateCampaignRewards(baseRewards);
+        int campaignRewards =
+                calculateCampaignRewards(baseRewards);
 
         int totalRewards =
                 baseRewards +
@@ -51,13 +69,10 @@ public class RewardEngineService {
         breakdown.totalRewards = totalRewards;
 
         result.rewardSummary = breakdown;
-
         result.generatedAt = Instant.now().toString();
-
         result.warnings = new ArrayList<>();
 
         if (totalRewards >= 50000) {
-
             result.warnings.add(
                     "Maximum reward cap applied"
             );
@@ -71,7 +86,7 @@ public class RewardEngineService {
             String tier
     ) {
 
-        if (tier == null) {
+        if (tier == null || tier.isBlank()) {
             return 0;
         }
 
@@ -90,8 +105,9 @@ public class RewardEngineService {
         };
     }
 
-    private int calculateCampaignRewards(int baseRewards) {
-
+    private int calculateCampaignRewards(
+            int baseRewards
+    ) {
         return (int) (baseRewards * 0.25);
     }
 }

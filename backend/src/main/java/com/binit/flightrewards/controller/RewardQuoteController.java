@@ -7,19 +7,36 @@ import com.binit.flightrewards.service.RewardEngineService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+/**
+ * Handles reward quote generation requests.
+ */
 public class RewardQuoteController
         implements Handler<RoutingContext> {
 
-    private final ObjectMapper mapper =
-            new ObjectMapper();
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(
+                    RewardQuoteController.class
+            );
 
-    private final RewardEngineService rewardEngineService =
-            new RewardEngineService();
+    private final ObjectMapper mapper;
+
+    private final RewardEngineService rewardEngineService;
+
+    public RewardQuoteController(
+            RewardEngineService rewardEngineService,
+            ObjectMapper mapper
+    ) {
+        this.rewardEngineService =
+                rewardEngineService;
+
+        this.mapper = mapper;
+    }
 
     @Override
     public void handle(RoutingContext context) {
@@ -41,6 +58,11 @@ public class RewardQuoteController
                     rewardEngineService
                             .generateRewardQuote(request);
 
+            LOGGER.info(
+                    "Reward quote generated. RequestId={}",
+                    requestId
+            );
+
             context.response()
                     .putHeader(
                             "Content-Type",
@@ -57,6 +79,12 @@ public class RewardQuoteController
 
         } catch (IllegalArgumentException ex) {
 
+            LOGGER.warn(
+                    "Validation failed. RequestId={}",
+                    requestId,
+                    ex
+            );
+
             ApiErrorResponse error =
                     new ApiErrorResponse();
 
@@ -64,12 +92,21 @@ public class RewardQuoteController
                     "Validation failed";
 
             error.validationErrors =
-
                     List.of(ex.getMessage());
 
-            sendError(context, error, 400);
+            sendError(
+                    context,
+                    error,
+                    400
+            );
 
         } catch (Exception ex) {
+
+            LOGGER.error(
+                    "Unexpected error. RequestId={}",
+                    requestId,
+                    ex
+            );
 
             ApiErrorResponse error =
                     new ApiErrorResponse();
@@ -80,13 +117,24 @@ public class RewardQuoteController
             error.validationErrors =
                     new ArrayList<>();
 
-            sendError(context, error, 500);
+            sendError(
+                    context,
+                    error,
+                    500
+            );
         }
     }
 
     private void validateRequest(
             RewardQuoteRequest request
     ) {
+
+        if (request == null) {
+
+            throw new IllegalArgumentException(
+                    "Request body is mandatory"
+            );
+        }
 
         if (request.bookingAmount <= 0) {
 

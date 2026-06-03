@@ -2,8 +2,15 @@ package com.binit.flightrewards.client;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CurrencyConversionClient {
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(
+                    CurrencyConversionClient.class
+            );
 
     private final WebClient webClient;
 
@@ -13,7 +20,17 @@ public class CurrencyConversionClient {
                 WebClient.create(Vertx.vertx());
     }
 
-    public double fetchFxRate(String currencyCode) {
+    /**
+     * Returns FX rate for the
+     * supplied currency code.
+     *
+     * @param currencyCode ISO currency code
+     * @return conversion rate
+     */
+
+    public double fetchFxRate(
+            String currencyCode
+    ) {
 
         int retryCount = 0;
 
@@ -21,9 +38,9 @@ public class CurrencyConversionClient {
 
             try {
 
-                System.out.println(
-                        "Fetching FX rate attempt: "
-                                + (retryCount + 1)
+                LOGGER.info(
+                        "Fetching FX rate attempt {}",
+                        retryCount + 1
                 );
 
                 if ("USD".equalsIgnoreCase(currencyCode)) {
@@ -46,13 +63,14 @@ public class CurrencyConversionClient {
 
                 retryCount++;
 
-                System.out.println(
-                        "Retrying FX lookup..."
+                LOGGER.warn(
+                        "Retrying FX lookup",
+                        ex
                 );
             }
         }
 
-        System.out.println(
+        LOGGER.warn(
                 "Fallback FX rate applied"
         );
 
