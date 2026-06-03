@@ -6,7 +6,7 @@ plugins {
 }
 
 kotlin {
-  jvmToolchain(21)
+  jvmToolchain(17)
 }
 
 android {
@@ -14,13 +14,25 @@ android {
   compileSdk = libs.versions.compileSdk.get().toInt()
 
   defaultConfig {
+
     applicationId = "com.binit.flightrewards"
+
     minSdk = libs.versions.minSdk.get().toInt()
+
     targetSdk = libs.versions.targetSdk.get().toInt()
+
     versionCode = 1
+
     versionName = "1.0"
 
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    testInstrumentationRunner =
+      "androidx.test.runner.AndroidJUnitRunner"
+
+    buildConfigField(
+      "String",
+      "BASE_URL",
+      "\"http://10.0.2.2:8080/\""
+    )
   }
 
   buildTypes {
@@ -39,6 +51,7 @@ android {
 
   buildFeatures {
     compose = true
+    buildConfig = true
   }
 
   compileOptions {

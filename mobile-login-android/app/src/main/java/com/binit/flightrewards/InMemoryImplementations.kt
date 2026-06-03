@@ -4,13 +4,18 @@ import com.binit.flightrewards.data.network.NetworkMonitor
 import com.binit.flightrewards.data.repository.AuthException
 import com.binit.flightrewards.data.repository.AuthRepository
 import com.binit.flightrewards.data.storage.TokenStore
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class InMemoryNetworkMonitor(isOnline: Boolean) : NetworkMonitor {
-  private val _online = MutableStateFlow(isOnline)
-  override val isOnline: StateFlow<Boolean> = _online
+class InMemoryNetworkMonitor(
+  isOnline: Boolean
+) : NetworkMonitor {
+
+  private val _online =
+    MutableStateFlow(isOnline)
+
+  override val isOnline: StateFlow<Boolean> =
+    _online
 
   fun setOnline(value: Boolean) {
     _online.value = value
@@ -18,9 +23,12 @@ class InMemoryNetworkMonitor(isOnline: Boolean) : NetworkMonitor {
 }
 
 class InMemoryTokenStore : TokenStore {
+
   private var token: String? = null
 
-  override suspend fun saveToken(token: String) {
+  override suspend fun saveToken(
+    token: String
+  ) {
     this.token = token
   }
 
@@ -28,21 +36,37 @@ class InMemoryTokenStore : TokenStore {
     token = null
   }
 
-  override suspend fun readToken(): String? = token
+  override suspend fun readToken(): String? {
+    return token
+  }
 }
 
 /**
- * FOR DEBUG/TESTING ONLY - use BuildConfig.DEBUG to conditionally include.
- * Valid credentials: user@example.com / Password1
+ * Fake repository for local development,
+ * UI previews and tests only.
+ *
+ * Valid credentials:
+ * Email: user@example.com
+ * Password: Password1
  */
-class FakeAuthRepository(private val tokenStore: TokenStore) : AuthRepository {
-  override suspend fun login(email: String, password: String): String {
-    // Simulate network delay
-    delay(500)
+class FakeAuthRepository(
+  private val tokenStore: TokenStore
+) : AuthRepository {
 
-    if (email == "user@example.com" && password == "Password1") {
+  override suspend fun login(
+    email: String,
+    password: String
+  ): String {
+
+    if (
+      email == "user@example.com" &&
+      password == "Password1"
+    ) {
       return "token-abc"
     }
-    throw AuthException("Invalid credentials")
+
+    throw AuthException(
+      "Invalid credentials"
+    )
   }
 }

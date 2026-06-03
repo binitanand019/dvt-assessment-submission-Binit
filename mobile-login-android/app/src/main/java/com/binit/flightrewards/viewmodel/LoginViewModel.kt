@@ -10,7 +10,6 @@ import com.binit.flightrewards.domain.validation.EmailValidator
 import com.binit.flightrewards.ui.state.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,22 +29,37 @@ sealed interface LoginEvent {
 class LoginViewModel @Inject constructor(
   private val authRepository: AuthRepository,
   private val networkMonitor: NetworkMonitor,
-  private val tokenStore: TokenStore,
+  private val tokenStore: TokenStore
 ) : ViewModel() {
+  companion object {
+
+    private const val MAX_FAILED_ATTEMPTS = 3
+
+    private const val LOCKOUT_DURATION_MS = 300_000L
+
+  }
 
   private val _uiState = MutableStateFlow(LoginUiState())
-  val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+  val uiState: StateFlow<LoginUiState> =
+    _uiState.asStateFlow()
 
-  private val _isLoggedIn = MutableStateFlow(false)
-  val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+  private val _isLoggedIn =
+    MutableStateFlow(false)
 
-  private val eventsChannel = Channel<LoginEvent>(capacity = Channel.BUFFERED)
-  val events = eventsChannel.receiveAsFlow()
+  val isLoggedIn: StateFlow<Boolean> =
+    _isLoggedIn.asStateFlow()
+
+  private val eventsChannel =
+    Channel<LoginEvent>(Channel.BUFFERED)
+
+  val events =
+    eventsChannel.receiveAsFlow()
 
   init {
 
     viewModelScope.launch {
-      _isLoggedIn.value = tokenStore.readToken() != null
+      _isLoggedIn.value =
+        tokenStore.readToken() != null
     }
 
     viewModelScope.launch {
@@ -87,16 +101,23 @@ class LoginViewModel @Inject constructor(
 
     val snapshot = _uiState.value
 
-    val sanitizedEmail = snapshot.email.trim()
-    val sanitizedPassword = snapshot.password.trim()
+    val sanitizedEmail =
+      snapshot.email.trim()
 
-    if (!EmailValidator.isValid(sanitizedEmail)
-      || sanitizedPassword.length < 6
+    val sanitizedPassword =
+      snapshot.password.trim()
+
+    if (
+      !EmailValidator.isValid(
+        sanitizedEmail
+      ) ||
+      sanitizedPassword.length < 6
     ) {
 
       _uiState.update {
         it.copy(
-          errorMessage = "Please enter a valid email and password"
+          errorMessage =
+            "Please enter a valid email and password"
         )
       }
 
@@ -107,7 +128,8 @@ class LoginViewModel @Inject constructor(
 
       _uiState.update {
         it.copy(
-          errorMessage = "You appear to be offline"
+          errorMessage =
+            "You appear to be offline"
         )
       }
 
@@ -118,7 +140,8 @@ class LoginViewModel @Inject constructor(
 
       _uiState.update {
         it.copy(
-          errorMessage = "Account temporarily locked"
+          errorMessage =
+            "Account temporarily locked"
         )
       }
 
@@ -135,9 +158,6 @@ class LoginViewModel @Inject constructor(
     viewModelScope.launch {
 
       try {
-
-        // Fake API delay for production-like UX
-        delay(2000)
 
         val token = authRepository.login(
           sanitizedEmail,
@@ -163,7 +183,9 @@ class LoginViewModel @Inject constructor(
 
         _isLoggedIn.value = true
 
-        eventsChannel.trySend(LoginEvent.NavigateToHome)
+        eventsChannel.trySend(
+          LoginEvent.NavigateToHome
+        )
 
       } catch (e: Throwable) {
 
@@ -171,8 +193,12 @@ class LoginViewModel @Inject constructor(
           _uiState.value.failureCount + 1
 
         val lockoutExpiry =
-          if (nextFailureCount >= 3) {
-            System.currentTimeMillis() + (5 * 60 * 1000)
+          if (
+            nextFailureCount >=
+            MAX_FAILED_ATTEMPTS
+          ) {
+            System.currentTimeMillis() +
+                    LOCKOUT_DURATION_MS
           } else {
             null
           }
@@ -183,7 +209,8 @@ class LoginViewModel @Inject constructor(
             "Too many failed attempts. Try again in 5 minutes."
 
           e is AuthException ->
-            e.message ?: "Invalid credentials"
+            e.message
+              ?: "Invalid credentials"
 
           e is UnknownHostException ->
             "Unable to reach server. Please check your connection."
@@ -201,9 +228,12 @@ class LoginViewModel @Inject constructor(
         _uiState.update {
           it.copy(
             isLoading = false,
-            failureCount = nextFailureCount,
-            lockoutExpiryTime = lockoutExpiry,
-            errorMessage = errorMessage,
+            failureCount =
+              nextFailureCount,
+            lockoutExpiryTime =
+              lockoutExpiry,
+            errorMessage =
+              errorMessage
           )
         }
       }
@@ -218,18 +248,25 @@ class LoginViewModel @Inject constructor(
 
       _isLoggedIn.value = false
 
-      val online = _uiState.value.isOnline
+      val online =
+        _uiState.value.isOnline
 
       _uiState.value =
-        LoginUiState(isOnline = online)
+        LoginUiState(
+          isOnline = online
+        )
     }
   }
 
   fun resetForLogout() {
 
-    val online = _uiState.value.isOnline
+    val online =
+      _uiState.value.isOnline
 
     _uiState.value =
-      LoginUiState(isOnline = online)
+      LoginUiState(
+        isOnline = online
+      )
   }
+
 }
