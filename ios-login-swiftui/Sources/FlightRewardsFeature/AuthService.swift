@@ -53,9 +53,33 @@ public actor UserDefaultsTokenStore: TokenStoring {
 // MARK: - Models
 
 public struct LoginRequest: Codable {
-    let email: String
-    let password: String
+
+    public let email: String
+    public let password: String
+
+    public init(
+        email: String,
+        password: String
+    ) {
+        self.email = email
+        self.password = password
+    }
 }
+
+public struct LoginResponse: Codable {
+
+    public let token: String
+    public let expiresIn: Int
+
+    public init(
+        token: String,
+        expiresIn: Int
+    ) {
+        self.token = token
+        self.expiresIn = expiresIn
+    }
+}
+
 
 // MARK: - Auth Service
 
@@ -124,23 +148,14 @@ public final class AuthService: AuthServicing {
             )
 
         } catch {
-
-            // TEMPORARY FALLBACK FOR DEMO
-            // Allows evaluator demo even if localhost networking fails
-
-
-            if password == "Password1" {
-                return "offline-demo-token"
-            }
-
             throw AuthError("Invalid email or password")
-
         }
     }
 
     public func validateToken(
         _ token: String
     ) async throws -> Bool {
+
 
         return !token.isEmpty
     }

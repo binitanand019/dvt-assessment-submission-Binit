@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// Handles login logic - validation, auth calls, lockout after 3 failures.
 /// Dependencies are protocol-based so we can inject fakes in tests.

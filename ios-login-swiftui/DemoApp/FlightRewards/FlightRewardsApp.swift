@@ -10,7 +10,7 @@ struct FlightRewardsApp: App {
                 viewModel: AuthViewModel(
                     authService: AuthService(),
                     networkMonitor: StaticNetworkMonitor(isOnline: true),
-                    tokenStore: UserDefaultsTokenStore()
+                    tokenStore: KeychainTokenStore()
                 )
             )
         }
