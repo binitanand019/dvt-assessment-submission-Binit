@@ -26,7 +26,12 @@ class LoginScreenTest {
         val vm = LoginViewModel(repo, network, tokenStore)
 
         rule.setContent {
-            LoginScreen(viewModel = vm)
+            rule.setContent {
+                LoginScreen(
+                    viewModel = vm,
+                    onLoginSuccess = {}
+                )
+            }
         }
 
         rule.onNodeWithTag("loginButton").assertIsNotEnabled()

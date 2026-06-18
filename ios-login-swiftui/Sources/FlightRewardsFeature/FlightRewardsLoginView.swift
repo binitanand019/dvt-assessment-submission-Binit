@@ -160,20 +160,35 @@ public struct FlightRewardsLoginView: View {
                     )
                     .accessibilityIdentifier("loginButton")
 
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 8) {
 
                         Text("Demo Credentials")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
 
-                        Text("Email: test@example.com")
+                        Text("Email: user@example.com")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
 
                         Text("Password: Password1")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
+
+                        Button {
+
+                            viewModel.onEmailChanged("user@example.com")
+                            viewModel.onPasswordChanged("Password1")
+
+                        } label: {
+
+                            Label(
+                                "Use Demo Credentials",
+                                systemImage: "person.fill.checkmark"
+                            )
+                            .font(.caption)
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
 
                 }
